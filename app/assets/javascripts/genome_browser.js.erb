@@ -1,0 +1,561 @@
+margin = {top: 25, right: 30, bottom: 10, left: 90, minus: 20},
+labelAdjust = 4
+width= 1000 - margin.left - margin.right,
+annheight = 60;
+covheight = 200;
+lwidth = 80;
+lheight = 150;
+alwidth = 80;
+alheight = 210;
+anntoolheight = 
+tilewidth = 75;
+tileheight = 30;
+legendheight = 20;
+annotationWidth = 10;
+annotationMultiplier = 1.5;
+pareas=[];
+mareas=[];
+parea=undefined;
+marea=undefined;
+var xScale;
+var pScale;
+var mScale;
+var pxAxis;
+var mxAxis;
+var pAxis;
+var mAxis;
+var test;
+var annotation;
+var minus;
+var plus;
+var plegend;
+var mlegend;
+var defs;
+var paths;
+var marker;
+var tooltip;
+var pfocus;
+var mfocus;
+strandHeight = {"+": 10, "-": 30},
+colors = ["#1f77b4","#ff7f0e","#2ca02c","#bcbd22", "#8c564b" ,"#9467bd","#d62728" ],
+feat_types = {"Transcript": 0, "ORF": 1, "Hairpin": 3, "Factor": 4, "Promoter": 2, "RBS": 5, "TSS": 6},
+arrow = 'M 0,3 L 0.5,2 L 0,1 L -1,0',
+mark_types = ["Transcript","ORF","Promoter","RBS","Factor"];
+
+
+
+
+
+function renderAnnotations(gtfData,start,end) {
+  annotSort(gtfData)
+  plegend = d3.select("#viz")
+	      .append("svg")
+	      .attr("id","plegend")
+	      .attr("width",width+margin.left+margin.right)
+	      .attr("height",legendheight)
+	      .attr("transform","translate("+margin.left+",0)");
+  plus = d3.select("#viz")
+	   .append("svg")
+	   .attr("id","plus")
+	   .attr("width",width+margin.left+margin.right)
+	   .attr("height",covheight+margin.top+margin.bottom)
+	   .attr("transform","translate("+margin.left+",0)");
+  alegend = d3.select("#viz")
+	      .append("svg")
+	      .attr("id","alegend")
+	      .attr("width",width+margin.left+margin.right)
+	      .attr("height",legendheight)
+	      .attr("transform","translate("+margin.left+",0)");
+  annotation = d3.select("#viz")
+		 .append("svg")
+		 .attr("id","annotation")
+		 .attr("width",width+margin.left+margin.right)
+		 .attr("height",annheight)
+		 .attr("transform","translate("+margin.left+",0)");
+
+  minus = d3.select("#viz")
+	    .append("svg")
+	    .attr("id","minus")
+	    .attr("width",width+margin.left+margin.right)
+	    .attr("height",covheight+margin.top+margin.bottom+margin.minus)
+	    .attr("transform","translate("+margin.left+",0)");
+  mlegend = d3.select("#viz")
+	      .append("svg")
+	      .attr("id","mlegend")
+	      .attr("width",width+margin.left+margin.right)
+	      .attr("height",legendheight)
+	      .attr("transform","translate("+margin.left+",0)");
+  
+  defs = annotation.append('svg:defs');
+  paths = annotation.append('svg:g')
+		    .attr('id', 'markers')
+		    .attr('transform', 'translate(' + margin.left + ','+margin.bottom+')');
+  marker = defs.selectAll('marker')
+	       .data(mark_types)
+	       .enter()
+	       .append('svg:marker')
+	       .attr('id', function(d){ return 'marker_' + d})
+	       .attr('markerHeight', 3)
+	       .attr('markerWidth', 1)
+	       .attr('markerUnits', 'strokeWidth')
+	       .attr('orient', 'auto')
+		 .attr('refX', 0)
+		 .attr('refY', 2)
+		 .append("path")
+		 .attr("d",arrow)
+		 .attr("fill",function(d){return colors[feat_types[d]]});
+  tooltip = d3.select("body").append("div")
+		  .attr("id","tooltip")
+		  .style("opacity",0);
+  annotation.append("circle")
+	    .attr("id","hide")
+  annotation.append("use")
+	    .attr("id","Ause")
+	    .attr("xlink:href","#hide")
+	    .attr("transform",'translate('+ margin.left + ','+margin.bottom+')')
+
+  annotationTrack([start,end],gtfData);
+  alegend.append("rect")
+	 .attr({
+	   height: legendheight,
+	   width: 50,
+	   fill: "white",
+	   stroke: "white"
+	 })
+	 .attr("stroke-width",0.1)
+	 .on("click",function(d){
+	   var selected=alegend.selectAll(".legendbar");
+	   var ishidden=selected.classed("hidden");
+	   selected.classed("hidden",!ishidden)
+	 });
+}
+
+
+function annotationTrack(coords,data) {
+  xScale = d3.scale.linear()
+		   .domain(coords)
+		   .range([0,width]);
+  paths.selectAll("path")
+       .data(data)
+       .enter()
+       .append("path")
+       .attr('stroke-width', function(d) {return annotationWidth + (annotationMultiplier * feat_types[d.feature]);})
+       .attr({
+	 stroke: function(d) {return colors[feat_types[d.feature]];},
+	 id: function(d) { return d.name+"_path";},
+	 class: function(d) {return "annotation "+d.feature},
+	 name: function(d) {return d.name;},
+	 
+	 })
+       .on("mouseover",function(d) {
+	 selected=this;
+
+	 d3.select("#Ause")
+	   .attr("href","#"+selected.id);
+	 tooltip.transition()
+	    .duration(200)
+	    .style("opacity", 1)
+	 text="<strong>" + d.feature + "</strong><br><span>" + d.name + "</span><br><span>Start: " + d.start_site + "</span><br><span>End: " + d.stop_site +"</span>"
+	 bonusheight=0
+	 if (d.extra && d.extra.length > 0) {
+	   extras=d.extra.split(" ")
+	   test=extras;
+	   console.log(extras)
+	   for (i=0; i<extras.length; i+=2) {
+	     console.log(extras[i]);
+	     console.log(extras[i+1]);
+	     text+="<br><span>"+extras[i]+": "+extras[i+1]+"</span>"
+	     bonusheight+=32
+	   }
+	 }
+	 tooltip.html(text)
+	    .style("left", (d3.event.pageX + 20) + "px")
+	    .style("top",(d3.event.pageY + 10) + "px")
+	    .style("height",70+bonusheight+"px");
+	 })
+       .on("mouseout",function(d) {
+	 selected=this
+	 d3.select("#Ause")
+	   .attr("href","#hide");
+
+	 tooltip.transition()
+	    .duration(500)
+	    .style("opacity",0)
+	    .style("height","70px");
+       });
+  mark();
+  paths.selectAll("text")
+       .data(data)
+       .enter()
+       .append("text")
+       .attr("class", function(d){return "labs "+d.feature})
+       .attr("font-size","10px");
+}
+
+
+function initCoverage(p,m) {
+// A X E S  
+  pScale = d3.scale.linear()
+		   .range([covheight,0]);
+  pAxis = d3.svg
+	    .axis()
+	    .scale(pScale)
+	    .orient("left")
+	    .ticks(5);
+  mScale = d3.scale.linear()
+		   .range([0,covheight]);
+  mAxis = d3.svg
+	    .axis()
+	    .scale(mScale)
+	    .orient("left")
+	    .ticks(5);
+  maxP=d3.max(p,function(d) {return d.cov});
+  maxM=d3.max(m,function(d) {return d.cov});
+  theMax=[maxP,maxM].sort()
+  theMax=theMax[theMax.length - 1]
+  pScale.domain([0,theMax]);
+  mScale.domain([0,theMax]);
+
+
+  plus.append("g")
+      .attr("class","y axis").attr("transform","translate("+margin.left+","+margin.bottom+")");
+  minus.append("g")
+      .attr("class","y axis").attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")");
+  pxAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(4);
+  plus.append("g").attr("class","x axis").attr("transform","translate("+margin.left+","+(margin.bottom+covheight)+")");
+  mxAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(4);
+  minus.append("g").attr("class","x axis").attr("transform","translate("+margin.left+",0)")
+
+//               G R I D 
+
+
+  plus.append("g").attr('class','grid')
+      .attr("id","pxaxis")
+      .attr("transform","translate("+margin.left+","+(margin.bottom+covheight)+")");
+  plus.append("g").attr('class','grid')
+      .attr("id","pyaxis")
+      .attr("transform","translate("+margin.left+","+margin.bottom+")");
+  minus.append("g").attr('class','grid')
+       .attr("id","myaxis")
+       .attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")")
+  minus.append("g").attr('class','grid')
+       .attr("id","mxaxis")
+       .attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")")
+
+  axisLabel(plus);
+  axisLabel(minus);
+  //             L E G E N D S
+  var numstress = pcond.length
+  var pbars=plegend.selectAll("g")
+	 .data(pcond.reverse())
+	 .enter()
+	 .append("g")
+	 .attr("transform",function(d,i) {return "translate("+ (margin.left + i * width/numstress) +","+"0)"})
+  pbars.append("rect")
+	 .attr({
+	   width: function(d) {return width/numstress - 2},
+	   height: function(d) {return legendheight},
+	   fill: function(d) {return d[1]}
+	 });
+  pbars.append("text")
+      .attr({
+	x: function(d) {return (width/numstress)/2 - 7*Math.round(d[0].join('').length/2)},
+	y: function(d,i) {return legendheight/2},
+	dy: function(d) {return ".25em"}
+      })
+      .text(function(d) {return d[0].join('')});
+  pbars.on("click",function(d){
+    var toselect="#"+d[0].join("_")+"p"
+    var selected=plus.select(toselect);
+    var ishidden=selected.classed("hidden");
+    selected.classed("hidden",!ishidden);
+  });
+  feat_data=[];
+  for (n in feat_types) {feat_data.push([n,colors[feat_types[n]]])}
+  
+  var abars=alegend.selectAll("g")
+	 .data(feat_data)
+	 .enter()
+	 .append("g")
+	 .attr("class","legendbar")
+	 .attr("transform",function(d,i) {return "translate("+(margin.left + i*width/feat_data.length) +","+"0)"})
+  abars.append("rect")
+	 .attr({
+	   width: function(d) {return width/feat_data.length - 2},
+	   height: function(d) {return legendheight},
+	   fill: function(d) {return d[1]}
+	 });
+  abars.append("text")
+      .attr({
+	x: function(d) {return (width/feat_data.length)/2 - 7*Math.round(d[0].length/2)},
+	y: function(d,i) {return legendheight/2},
+	dy: function(d) {return ".25em"}
+      })
+      .text(function(d) {return d[0]});
+  abars.on("click",function(d){
+    var toselect="."+d[0]
+    console.log(toselect);
+    var selected=annotation.selectAll(toselect);
+    var ishidden=selected.classed("hidden");
+    selected.classed("hidden",!ishidden);
+  });
+
+  var mbars=mlegend.selectAll("g")
+	 .data(mcond.reverse())
+	 .enter()
+	 .append("g")
+	 .attr("transform",function(d,i) {return "translate("+ (margin.left + i * width/numstress) +","+"0)"})
+  mbars.append("rect")
+	 .attr({
+	   width: function(d) {return width/numstress - 2},
+	   height: function(d) {return legendheight},
+	   fill: function(d) {return d[1]}
+	 });
+  mbars.append("text")
+      .attr({
+	x: function(d) {return (width/numstress)/2 - 7*Math.round(d[0].join('').length/2)},
+	y: function(d,i) {return legendheight/2},
+	dy: function(d) {return ".25em"}
+      })
+      .text(function(d) {return d[0].join('')});
+  mbars.on("click",function(d){
+    var toselect="#"+d[0].join("_")+"m"
+    var selected=minus.select(toselect);
+    var ishidden=selected.classed("hidden");
+    selected.classed("hidden",!ishidden);
+  });
+
+// Z O O M    S E T U P 
+  plus.append("clipPath")
+      .attr("id","pclip")
+      .append("rect")
+      .attr("x",0)
+      .attr("y",0)
+      .attr("width", width)
+      .attr("height",covheight)
+      .attr("transform","translate("+margin.left+","+margin.bottom+")");
+
+  minus.append("clipPath")
+       .attr("id","mclip")
+       .append("rect")
+       .attr("x",0)
+       .attr("y",0)
+       .attr("width",width)
+       .attr("height",covheight)
+       .attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")");
+  plus.append("rect")
+      .attr("class","pane")
+      .attr("width",width)
+      .attr("height",covheight)
+      .attr("transform","translate("+margin.left+","+margin.bottom+")")
+      .call(zoom);
+  minus.append("rect")
+       .attr("class","pane")
+       .attr("width",width)
+       .attr("height",covheight)
+       .attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")")
+       .call(zoom);
+// A R E A   F U N C T I O N S
+  parea=d3.svg.area()
+	      .x(function(d) {return margin.left + xScale(d.base)})
+	      .y(function(d) {return margin.bottom+pScale(d.cov)})
+	      .x1(margin.left + width)
+	      .y1(covheight + margin.bottom)
+
+  marea=d3.svg.area()
+	      .x(function(d) {return margin.left + xScale(d.base)})
+	      .y(function(d) {return margin.bottom + margin.minus + mScale(d.cov)})
+	      .x1(margin.left+width)
+	      .y1(margin.bottom+margin.minus)
+  plus.append("circle")
+      .attr("id","hide")
+  minus.append("circle")
+       .attr("id","hide")
+  plus.append("use")
+      .attr("id","Puse")
+      .attr("xlink:href","#hide")
+  minus.append("use")
+       .attr("id","Muse")
+       .attr("xlink:href","#hide")
+}
+
+
+
+function renderCoverage(p,m,pcol,mcol,pcondition,mcondition) {
+  p.unshift({base: d3.min(p,function(d){return d.base}), cov: 0})
+  m.unshift({base: d3.min(m,function(d){return d.base}), cov: 0})
+  p.push({base: d3.max(p,function(d){return d.base}),cov: 0});
+  m.push({base: d3.max(m,function(d){return d.base}),cov: 0});
+  var ptemp={};
+  var mtemp={};
+  p.forEach(function(d) {ptemp[d.base]=d.cov});
+  m.forEach(function(d) {mtemp[d.base]=d.cov});
+
+//  var dataset=
+  plus.append("path")
+      .attr("id",pcondition+'p')
+      .attr("class", "area p")
+      .attr("clip-path","url(#pclip)")
+      .on("mouseover",function(d) {
+	var pselected=this;
+	d3.select("#Puse").attr("href","#"+pselected.id);
+	pfocus.style("display",null)
+      })
+      .on("mouseout",function(d) {
+	d3.select("#Puse").attr("href","#hide");
+	pfocus.style("display","none")
+      })
+      .on("mousemove",function(d) {
+	mousemove(this,ptemp);
+	plus.select("#pcirc")
+      });
+
+  minus.append("path")
+       .attr("id",mcondition+'m')
+       .attr("class", "area m")
+       .attr("clip-path","url(#mclip)")
+       .on("mouseover",function(d) {
+	 var mselected=this
+	 d3.select("#Muse").attr("href","#"+mselected.id)
+	 mfocus.style("display",null)
+       })
+       .on("mouseout",function(d) {
+	 d3.select("#Muse").attr("href","#hide")
+	 mfocus.style("display","none")
+       })
+       .on("mousemove",function(d){
+	 mousemove(this,mtemp);
+	 d3.select("#Muse").attr("href","#mcirc")
+       });
+
+  plus.select("#"+pcondition+'p').data([p]).style("fill",pcol);
+  minus.select("#"+mcondition+'m').data([m]).style("fill",mcol);
+}
+
+
+function axisLabel(graph) {
+  graph.append("text")
+      .attr({
+	class: "y label",
+	y: 0,
+	x: -100,
+	dy: ".75em",
+	transform: "rotate(-90)"
+      })
+      .attr("text-anchor","end")
+      .text("Coverage");
+}
+/*
+function drawAnnotation(annots) {
+  annots.attr("d", function(d,i) { return d.strand == "+" ? 'M '+(xScale(d.start_site)+margin.left)+','+strandHeight[d.strand]+' L ' + (xScale(d.stop_site)+margin.left) + ','+strandHeight[d.strand] : 'M '+(xScale(d.stop_site)+margin.left)+','+strandHeight[d.strand]+' L ' + (xScale(d.start_site)+margin.left) + ','+strandHeight[d.strand];})
+}
+*/
+
+function drawAnnotation(annots) {
+  annots.attr("d", function(d,i) { return d.strand == "+" ? 'M '+(xScale(d.start_site))+','+strandHeight[d.strand]+' L ' + (xScale(d.stop_site)) + ','+strandHeight[d.strand] : 'M '+(xScale(d.stop_site))+','+strandHeight[d.strand]+' L ' + (xScale(d.start_site)) + ','+strandHeight[d.strand];})
+}
+
+function labelAnnotation(labels) {
+  labels.attr("y",function(d){return strandHeight[d.strand] + labelAdjust})
+      .attr("x",function(d){return xScale(d.start_site + ((d.stop_site-d.start_site)/2))})
+      .text(function(d) {return d.name});
+}
+
+function draw() {
+  plus.select(".x.axis").call(pxAxis);
+  minus.select(".x.axis").call(mxAxis);
+  plus.select(".y.axis").call(pAxis);
+  minus.select(".y.axis").call(mAxis);
+
+  plus.select("#pxaxis").call(makePXgrid().tickSize(-covheight, 0, 0).tickFormat(""));
+  plus.select("#pyaxis").call(makePYgrid().tickSize(-width, 0, 0).tickFormat(""));
+  minus.select("#mxaxis").call(makeMXgrid().tickSize(-covheight, 0, 0).tickFormat("") );
+  minus.select("#myaxis").call(makeMYgrid().tickSize(-width, 0, 0).tickFormat("") );
+
+  plus.selectAll(".area").attr("d",parea);
+  minus.selectAll(".area").attr("d",marea);
+  drawAnnotation(annotation.selectAll(".annotation"));
+  labelAnnotation(paths.selectAll(".labs.ORF"));
+}
+
+function makePXgrid () {return d3.svg.axis().scale(xScale).orient("bottom").ticks(8)}
+function makeMXgrid () {return d3.svg.axis().scale(xScale).orient("top").ticks(8)}
+function makePYgrid () {return d3.svg.axis().scale(pScale).orient("left").ticks(8)}
+function makeMYgrid() {return d3.svg.axis().scale(mScale).orient("left").ticks(8) }
+
+function reScale() {
+  var p= +$('#rePlus').val()
+  var m= +$('#reMinus').val()
+  if (p > 0) {
+    pScale.domain([0,p]);
+  }
+  if (m > 0) {
+    mScale.domain([0,m]);
+  }
+  draw()
+}
+
+
+function annotSort(input) {
+  input.sort(function(a,b){return feat_types[a.feature] - feat_types[b.feature]})
+}
+
+function mark() {
+  paths.selectAll(".Transcript, .Promoter, .ORF, .RBS")
+       .attr('marker-end',function(d) {return 'url(#marker_'+d.feature+')'})
+}
+
+function coverageMouseoverSetup() {
+// C O V E R A G E   M O U S E O V E R
+  pfocus = plus.append("g")
+	       .attr("class","focus")
+	       .style("display","none");
+  mfocus = minus.append("g")
+		.attr("class","focus")
+		.style("display","none");
+  pfocus.append("circle")
+	.attr("class", "y")
+ .attr("id","pcirc")
+ .style("fill","blue")
+ .style("stroke","blue")
+ .attr("r",4);
+  pfocus.append("text")
+	.attr("id","X")
+	.attr("x",9)
+ .attr("dy",".15em");
+  pfocus.append("text")
+	.attr("id","Y")
+ .attr("x",9)
+ .attr("y",-15)
+ .attr("dy",".15em")
+  mfocus.append("circle")
+	.attr("class", "y")
+ .attr("id","mcirc")
+ .style("fill","red")
+ .style("stroke","red")
+ .attr("r",4);
+  mfocus.append("text")
+	.attr("id","X")
+	.attr("x",9)
+ .attr("dy",".15em");
+  mfocus.append("text")
+	.attr("id","Y")
+ .attr("x",9)
+ .attr("y",-15)
+ .attr("dy",".15em")
+}
+
+
+function mousemove(selected,dataset) {
+  var x0 = Math.round(xScale.invert(d3.mouse(selected)[0] - margin.left));
+  var graph = selected.id[selected.id.length-1];
+  var focus = eval(graph+"focus");
+  if (graph == "p") {
+    focus.attr("transform","translate("+(margin.left+xScale(x0))+","+(margin.bottom+pScale(dataset[x0]))+")");
+  } else {
+    focus.attr("transform","translate("+(margin.left+xScale(x0))+","+(margin.bottom+margin.minus+mScale(dataset[x0]))+")")
+  }
+  focus.select("#X").text(x0);
+  focus.select("#Y").text(dataset[x0]);
+
+}

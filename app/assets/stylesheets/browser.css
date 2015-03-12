@@ -1,0 +1,94 @@
+#viz {
+  overflow: scroll;
+  float: left;
+  clear: both;
+}
+
+
+#tooltip {
+  position: absolute;
+  text-align: center;
+  width: 120px;
+  height: 70px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border: radius: 8px;
+  pointer-events: none;
+}
+
+
+.hidden {
+  visibility: hidden;
+  display: none;
+}
+
+.noUi-handle {
+  width: 10px !important;
+  left: 0px !important;
+}
+
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000 !important;
+  stroke-width: 0;
+  shape-rendering: crispEdges;
+}
+
+
+
+.line {
+  stroke-width: 1.5px;
+}
+
+
+.area {
+  stroke-width: 1.0px;
+  stroke: black;
+  line-height: 0;
+  opacity: 0.7;
+}
+
+/*
+.p {fill: lightsteelblue;}
+.m {fill: #e31a1c;}
+*/
+
+.grid .tick {
+  stroke: lightgrey;
+  opacity: 0.7;
+}
+.grid path {
+      stroke-width: 0;
+}
+
+#legends {
+  padding: 0px;
+}
+
+#legends text {
+  font-size: 8px;
+}
+
+#aCond rect {
+  opacity: 0.6;
+}
+
+rect {
+  stroke: black;
+}
+
+rect.pane {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+
+.ui-icon-gripsmall-diagonal-se {
+  z-index: 90;
+  padding: 3px;
+  background-image: url(http://code.jquery.com/ui/1.11.2/themes/smoothness/images/ui-icons_222222_256x240.png) !important;
+}

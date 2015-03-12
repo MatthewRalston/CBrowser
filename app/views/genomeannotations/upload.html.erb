@@ -1,0 +1,28 @@
+<h1>
+Upload Annotations.
+</h1>
+<p>
+  This uploader parses <a href="http://useast.ensembl.org/info/website/upload/gff.html">gtf</a> (gffv2 without equals signs), format annotations and uses an 'ID' field for identification. If your file does not contain this field, create a duplicate of your file and replace the identifiers using Ctrl+F and replace in your favorite text editor, or at the commandline with <a href="http://www.brunolinux.com/02-The_Terminal/Find_and%20Replace_with_Sed.html">sed</a>. After clicking submit, please be patient while your file is uploaded, you will see a success message when the submission is complete.
+</p>
+
+
+<%= form_tag({:controller => :genomeannotations, :action => :upload}, :id => 'fileForm', :method => :post, multipart: true) do %>
+  <% if @errors && @errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@errors.count, "error") %> in at least one record prohibited these annotations from being saved:</h2>
+      <ul>
+	<li><%= @problem %>
+	<% @errors.full_messages.each do |msg|  %>
+	  <li><%= msg %></li>
+	  <% end %>
+      </ul>
+    </div>
+    <% elsif @msg %>
+    <p><%= @msg %></p>
+    <% end %>
+    <%= file_field_tag :annot_file %>
+    <%= label_tag :author, "Author" %>
+  <%= text_field_tag :author %>
+    <br>
+  <%= submit_tag "Load Annotations", :name => nil %>
+<% end %>
