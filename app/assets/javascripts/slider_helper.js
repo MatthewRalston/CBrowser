@@ -1,33 +1,57 @@
 $(document).ready(function(){
+  values=[175000,180000]
   // Initialize slider
-  $('#rangeSlider').noUiSlider({
-    start: [175000,176000],
-    margin: 300,
-    connect: true,
+  $('#genomeSlider').noUiSlider({
+    start: [values[0]],
     behaviour: 'drag-fixed',
     range: {'min': 0,
 	    'max': 192000
     },
-    limit: 50000,
     step: 1
   },true);
+  var gslider = $( '#genomeSlider' );
+  //gslider.Link('lower').to($( '#start' ));
+  $('#lengthSlider').noUiSlider({
+    start: [values[1]-values[0]],
+    behaviour: 'drag-fixed',
+    range: {'min': 100,
+	    'max': 50000
+    },
+    step: 1
+  },true);
+  var lslider = $( '#lengthSlider' );
   // Create links
-  $('#first-base').remove();
-  var slider = $( '#rangeSlider' );
-  slider.Link('lower').to($( '#start' ));
-  slider.Link('upper').to($( '#end' ));
+
+  $('.slider').on('set',function(){
+    pos=Number(gslider.val())
+    delta=Number(lslider.val())
+    values = [pos,pos+delta];
+    $('#start').val(values[0]);
+    $('#end').val(d3.min([values[1],]));
+  });
+
+
+
+
+
   // Adjusts range to chromosome
   var chr;
   d3.select('#chrSelect').on('change',function(d){
     chr=this;
     if (chr.value === "Chrom") {
-      d3.select("#start").attr("value",'{:min=>"0",:max=>"3940880",:step=>"1"}');
-      d3.select("#end").attr("value",'{:min=>"0",:max=>"3940880",:step=>"1"}');
-      $('#rangeSlider').noUiSlider({range: {'min': 0,'max': 3940880}},true);
+      d3.select("#start").attr(
+	{min: "0",
+	 max: "3940880",
+	 step: "1"
+	});
+      $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 3940880}},true);
     } else {
-      d3.select("#start").attr("value",'{:min=>"0",:max=>"192000",:step=>"1"}');
-      d3.select("#end").attr("value",'{:min=>"0",:max=>"192000",:step=>"1"}');
-      $('#rangeSlider').noUiSlider({range: {'min': 0,'max': 192000}},true)
+      d3.select("#start").attr(
+	{min: "0",
+	 max: "192000",
+	 step: "1"
+	});
+      $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 192000}},true)
     };
   });
 

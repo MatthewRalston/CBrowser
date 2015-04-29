@@ -7,7 +7,8 @@ namespace :db do
     cmd = nil
     with_config do |app, host, db, user|
       puts("App:#{app}\nHost:#{host}\nDB:#{db}\nUser:#{user}")
-      cmd = "pg_dump --username #{user} --verbose --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/#{app}.dump"
+      cmd = "mysqldump -u #{user} -p #{db} | gzip > #{Rails.root}/db/CBrowser.dump.gz"
+      #cmd = "pg_dump --username #{user} --verbose --no-owner --no-acl --format=c #{db} > #{Rails.root}/db/#{app}.dump"
     end
     puts cmd
     exec cmd
@@ -17,8 +18,8 @@ namespace :db do
   task :restore => :environment do
     cmd = nil
     with_config do |app, host, db, user|
-      #cmd = "mysql -u #{user} -p#{pass} #{db} < #{Rails.root}/db/#{app}.dump"
-      cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/#{app}.dump"
+      cmd = "mysql -u #{user} -p#{pass} #{db} < #{Rails.root}/db/CBrowser.dump"
+      #cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/#{app}.dump"
     end
     Rake::Task["db:drop"].invoke
     Rake::Task["db:create"].invoke

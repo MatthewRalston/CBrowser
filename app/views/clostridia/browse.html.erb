@@ -30,19 +30,24 @@
 <!-- D A T A    F O R M  & Touch screen slider -->
     <div id="dataSub-container">
       <div id="slider-container">
-	<div id="rangeSlider" class="row noUi-ltr noUi-horizontal noUi-background">
+	<div id="genomeSlider" class="row noUi-ltr noUi-horizontal noUi-background slider">
 	  <div id="first-base" class="noUi-base">
 	    <div class="noUi-origin noUi-connect">
 	      <div class="noUi-handle noUi-handle-lower">
 	      </div>
 	    </div>
-	    <div class="noUi-origin noUi-background">
-	      <div class="noUi-handle noUi-handle-upper">    
+	  </div>
+	</div>
+	<div id="lengthSlider" class="row noUi-ltr noUi-horizontal noUi-background slider">
+	  <div id="second-base" class="noUi-base">
+	    <div class="noUi-origin noUi-connect">
+	      <div class="noUi-handle noUi-handle-lower">
 	      </div>
 	    </div>
 	  </div>
 	</div>
       </div>
+	
 
       <div class="row" id="form-container">
       <%= form_tag({:controller => :clostridia, :action => :browse},  :method => :get, :id => 'dataForm', :class => "custom") do %>
@@ -63,13 +68,13 @@
 	    <%= label_tag :start, "Start", :id => "startLabel", :class => "coordLabel right inline" %>
 	  </div>
 	  <div class="large-2 small-2 columns">
-	    <%= number_field_tag 'start', :min=>"0", :max=>"192000", :step=>"1", :id => "startSelect", :class => "numSelect" %>
+	    <%= number_field_tag 'start', 175000, min: 0, max: 192000, step: 1, class: "numSelect" %>
 	  </div>
 	  <div class="large-1 small-1 columns">
 	    <%= label_tag :end, "End", :id => "endLabel", :class => "coordLabel right inline" %>
 	  </div>
 	  <div class="large-2 small-2 columns">
-	    <%= number_field_tag 'end', :min=>"0", :max=>"192000", :step=>"1", :id => "endSelect", :class => "numSelect" %>
+	    <%= number_field_tag 'end', 180000, :min=>"0", :max=>"192000", :step=>"1", :class => "numSelect" %>
 	  </div>
 	  <div class="large-2 small-2 columns">
 	    <%= label_tag :chr, "Chromosome", :id => "chrLabel", :class => "coordLabel right inline" %>
@@ -176,7 +181,13 @@
 	      <div class="large-1 small-1 columns">
 		<%= select_tag 'reducer', options_for_select(["Avg","Max","Sum"],"Sum") %>
 	      </div>
-	      <div class="large-4 small-4 columns">
+	      <div class="large-2 small-2 columns">
+		<%= label_tag 'annotation_tag', "Annotation", :class => "condLabel right inline" %>
+	      </div>
+	      <div class="large-3 small-3 columns">
+		<%= text_field_tag 'annotation_id' %>
+	      </div>
+	      <div class="large-3 small-3 columns">
 		<%= submit_tag "Load Annotation", :name => nil %>
 	      </div>
 	  </div>
@@ -217,14 +228,15 @@
 	 zoom = d3.behavior.zoom()
 			   .on("zoom",draw);
 	 if (chr == "Chrom") {
-	   $('#rangeSlider').noUiSlider({range: {'min': 0,'max': 3940880}},true);
+	   $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 3940880}},true);
 	 }
 	 else {
-	   $('#rangeSlider').noUiSlider({range: {'min': 0,'max': 192000}},true);
+	   $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 192000}},true);
 	 }
+
 	 $('#chrSelect').val(chr);
-	 $('#start').val(start);
-	 $('#end').val(end);
+	 $('#genomeSlider').val(start);
+	 $('#lengthSlider').val(end-start);
 	 
 
 	 mbrewer=["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"];

@@ -11,8 +11,8 @@ anntoolheight =
 tilewidth = 75;
 tileheight = 30;
 legendheight = 20;
-annotationWidth = 10;
-annotationMultiplier = 1.5;
+annotationWidth = 13;
+annotationMultiplier = 2;
 pareas=[];
 mareas=[];
 parea=undefined;
@@ -144,8 +144,7 @@ function annotationTrack(coords,data) {
 	 stroke: function(d) {return colors[feat_types[d.feature]];},
 	 id: function(d) { return d.name+"_path";},
 	 class: function(d) {return "annotation "+d.feature},
-	 name: function(d) {return d.name;},
-	 
+	 name: function(d) {return d.name;}
 	 })
        .on("mouseover",function(d) {
 	 selected=this;
@@ -189,7 +188,7 @@ function annotationTrack(coords,data) {
        .enter()
        .append("text")
        .attr("class", function(d){return "labs "+d.feature})
-       .attr("font-size","10px");
+       .attr("font-size","14px");
 }
 
 
@@ -211,8 +210,7 @@ function initCoverage(p,m) {
 	    .ticks(5);
   maxP=d3.max(p,function(d) {return d.cov});
   maxM=d3.max(m,function(d) {return d.cov});
-  theMax=[maxP,maxM].sort()
-  theMax=theMax[theMax.length - 1]
+  theMax=d3.max([maxP,maxM])
   pScale.domain([0,theMax]);
   mScale.domain([0,theMax]);
 
@@ -439,10 +437,11 @@ function axisLabel(graph) {
 	class: "y label",
 	y: 0,
 	x: -100,
-	dy: ".75em",
+	dy: ".85em",
 	transform: "rotate(-90)"
       })
       .attr("text-anchor","end")
+      .style("font-size","15px")
       .text("Coverage");
 }
 /*

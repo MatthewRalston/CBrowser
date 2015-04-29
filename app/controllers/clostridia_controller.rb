@@ -4,13 +4,28 @@ class ClostridiaController < ApplicationController
     params[:end]=params[:end].to_i
     puts(params)
     @limit = 50000
+    @buffer = 2000
     @errors=[]
     # If parameters, do things else do nothing
+    if params[:annotation_id]      
+      result = Genomeannotation.where(name: params[:annotation_id]).as_json[0]
+      if result.nil?
+        @errors << "No matching record found: #{params[:annotation_id]}"
+        render 'browse'
+      else        
+        params[:chr]=result["chr"]
+        maximum = (result["chr"] == "pSol1" ? 192000 : 3940880)
+        params[:start]=[result["start_site"].to_i - @buffer,0].max
+        params[:end]=[result["stop_site"].to_i + @buffer,maximum].min
+      end
+      params[:stress1],params[:stress2],params[:stress3]=%w(NS BA BuOH) if nothing?(params)
+    end
     if (params[:start] && params[:end] && params[:chr])
       checkparams(params)
       if @errors.any?
-        render 'index'
+        render 'browse'
       else
+        puts "GOOD PARAMS"
         @annotations = Genomeannotation.search(annotation_render)
         if params[:cov]
           # For active datasets, each condition set is added to an array of data          
@@ -122,5 +137,10 @@ private
     @errors << "Invalid time specified" unless time?(params)
     @errors << "Invalid TEX treatment specified" unless tex?(params)
     @errors << "Invalid reducer specified" unless reducer?(params["reducer"])
+  end
+
+  def nothing?(params)
+    tracks=[:stress1,:stress2,:stress3,:stress4,:time1,:time2,:time3,:time4]
+    return params.select{|k,v| tracks.include?(k) && v != ''}.empty?
   end
 end
