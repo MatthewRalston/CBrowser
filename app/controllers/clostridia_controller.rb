@@ -7,7 +7,7 @@ class ClostridiaController < ApplicationController
     @buffer = 2000
     @errors=[]
     # If parameters, do things else do nothing
-    if params[:annotation_id]      
+    if params.keys.include?(:annotation_id) && params[:annotation_id] != ''     
       result = Genomeannotation.where(name: params[:annotation_id]).as_json[0]
       if result.nil?
         @errors << "No matching record found: #{params[:annotation_id]}"
@@ -25,7 +25,6 @@ class ClostridiaController < ApplicationController
       if @errors.any?
         render 'browse'
       else
-        puts "GOOD PARAMS"
         @annotations = Genomeannotation.search(annotation_render)
         if params[:cov]
           # For active datasets, each condition set is added to an array of data          

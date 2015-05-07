@@ -7,7 +7,6 @@ lwidth = 80;
 lheight = 150;
 alwidth = 80;
 alheight = 210;
-anntoolheight = 
 tilewidth = 75;
 tileheight = 30;
 legendheight = 20;
@@ -30,6 +29,7 @@ var minus;
 var plus;
 var plegend;
 var mlegend;
+var alegend;
 var defs;
 var paths;
 var marker;
@@ -41,25 +41,12 @@ colors = ["#1f77b4","#ff7f0e","#2ca02c","#bcbd22", "#8c564b" ,"#9467bd","#d62728
 feat_types = {"Transcript": 0, "ORF": 1, "Hairpin": 3, "Factor": 4, "Promoter": 2, "RBS": 5, "TSS": 6},
 arrow = 'M 0,3 L 0.5,2 L 0,1 L -1,0',
 mark_types = ["Transcript","ORF","Promoter","RBS","Factor"];
+square_types = ["Transcript","ORF"]
+feat_data=[];
+for (n in feat_types) {feat_data.push([n,colors[feat_types[n]]])}
 
+function onlyAnnotation() {
 
-
-
-
-function renderAnnotations(gtfData,start,end) {
-  annotSort(gtfData)
-  plegend = d3.select("#viz")
-	      .append("svg")
-	      .attr("id","plegend")
-	      .attr("width",width+margin.left+margin.right)
-	      .attr("height",legendheight)
-	      .attr("transform","translate("+margin.left+",0)");
-  plus = d3.select("#viz")
-	   .append("svg")
-	   .attr("id","plus")
-	   .attr("width",width+margin.left+margin.right)
-	   .attr("height",covheight+margin.top+margin.bottom)
-	   .attr("transform","translate("+margin.left+",0)");
   alegend = d3.select("#viz")
 	      .append("svg")
 	      .attr("id","alegend")
@@ -72,6 +59,22 @@ function renderAnnotations(gtfData,start,end) {
 		 .attr("width",width+margin.left+margin.right)
 		 .attr("height",annheight)
 		 .attr("transform","translate("+margin.left+",0)");
+}
+
+function setupTracks() {
+  plegend = d3.select("#viz")
+	      .append("svg")
+	      .attr("id","plegend")
+	      .attr("width",width+margin.left+margin.right)
+	      .attr("height",legendheight)
+	      .attr("transform","translate("+margin.left+",0)");
+  plus = d3.select("#viz")
+	   .append("svg")
+	   .attr("id","plus")
+	   .attr("width",width+margin.left+margin.right)
+	   .attr("height",covheight+margin.top+margin.bottom)
+	   .attr("transform","translate("+margin.left+",0)");
+  onlyAnnotation()
 
   minus = d3.select("#viz")
 	    .append("svg")
@@ -85,16 +88,22 @@ function renderAnnotations(gtfData,start,end) {
 	      .attr("width",width+margin.left+margin.right)
 	      .attr("height",legendheight)
 	      .attr("transform","translate("+margin.left+",0)");
-  
+}
+
+function renderAnnotations(gtfData,start,end) {
+  annotSort(gtfData)
+
+
   defs = annotation.append('svg:defs');
   paths = annotation.append('svg:g')
 		    .attr('id', 'markers')
 		    .attr('transform', 'translate(' + margin.left + ','+margin.bottom+')');
-  marker = defs.selectAll('marker')
+
+  markerArrow = defs.selectAll('marker')
 	       .data(mark_types)
 	       .enter()
 	       .append('svg:marker')
-	       .attr('id', function(d){ return 'marker_' + d})
+	       .attr('id', function(d){ return 'markerArrow_' + d})
 	       .attr('markerHeight', 3)
 	       .attr('markerWidth', 1)
 	       .attr('markerUnits', 'strokeWidth')
@@ -104,6 +113,31 @@ function renderAnnotations(gtfData,start,end) {
 		 .append("path")
 		 .attr("d",arrow)
 		 .attr("fill",function(d){return colors[feat_types[d]]});
+  markerSquare = defs.selectAll('marker')
+		     .append('svg:marker')
+		     .attr('id', function(d){
+		       if ($.inArray(d,square_types) == -1){
+			 return null
+		       }
+		       else {
+			 return 'markerSquare_' + d
+		       }
+		     })
+		     .attr('class','markerSquare')
+		     .attr('markerHeight', 3)
+		     .attr('markerWidth', 2)
+		     .attr('markerUnits', 'strokeWidth')
+		     .attr('orient', 'auto')
+		     .attr('refX', 1)
+		     .attr('refY', 2)
+		     .append("rect")
+		     .attr("x",1)
+		     .attr("y",1)
+		     .attr("width",5)
+		     .attr("height",5)
+		     .attr("stroke-width",0)
+		     .attr("fill",function(d){return colors[feat_types[d]]})
+
   tooltip = d3.select("body").append("div")
 		  .attr("id","tooltip")
 		  .style("opacity",0);
@@ -128,13 +162,35 @@ function renderAnnotations(gtfData,start,end) {
 	   var ishidden=selected.classed("hidden");
 	   selected.classed("hidden",!ishidden)
 	 });
+  var abars=alegend.selectAll("g")
+	 .data(feat_data)
+	 .enter()
+	 .append("g")
+	 .attr("class","legendbar")
+	 .attr("transform",function(d,i) {return "translate("+(margin.left + i*width/feat_data.length) +","+"0)"})
+  abars.append("rect")
+	 .attr({
+	   width: function(d) {return width/feat_data.length - 2},
+	   height: function(d) {return legendheight},
+	   fill: function(d) {return d[1]}
+	 });
+  abars.append("text")
+      .attr({
+	x: function(d) {return (width/feat_data.length)/2 - 7*Math.round(d[0].length/2)},
+	y: function(d,i) {return legendheight/2},
+	dy: function(d) {return ".25em"}
+      })
+      .text(function(d) {return d[0]});
+  abars.on("click",function(d){
+    var toselect="."+d[0]
+    var selected=annotation.selectAll(toselect);
+    var ishidden=selected.classed("hidden");
+    selected.classed("hidden",!ishidden);
+  });
 }
 
 
 function annotationTrack(coords,data) {
-  xScale = d3.scale.linear()
-		   .domain(coords)
-		   .range([0,width]);
   paths.selectAll("path")
        .data(data)
        .enter()
@@ -154,8 +210,8 @@ function annotationTrack(coords,data) {
 	 tooltip.transition()
 	    .duration(200)
 	    .style("opacity", 1)
-	 text="<strong>" + d.feature + "</strong><br><span>" + d.name + "</span><br><span>Start: " + d.start_site + "</span><br><span>End: " + d.stop_site +"</span>"
-	 bonusheight=0
+	 text="<strong>" + d.feature + "</strong><br><span>" + d.name + "</span><br><span>Start: " + d.start_site + "</span><br><span>End: " + d.stop_site +"</span>";
+	 bonusheight=0;
 	 if (d.extra && d.extra.length > 0) {
 	   extras=d.extra.split(" ")
 	   test=extras;
@@ -163,8 +219,8 @@ function annotationTrack(coords,data) {
 	   for (i=0; i<extras.length; i+=2) {
 	     console.log(extras[i]);
 	     console.log(extras[i+1]);
-	     text+="<br><span>"+extras[i]+": "+extras[i+1]+"</span>"
-	     bonusheight+=32
+	     text+="<br><span>"+extras[i]+": "+extras[i+1]+"</span>";
+	     bonusheight+=32;
 	   }
 	 }
 	 tooltip.html(text)
@@ -240,8 +296,8 @@ function initCoverage(p,m) {
        .attr("id","mxaxis")
        .attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")")
 
-  axisLabel(plus);
-  axisLabel(minus);
+  axisLabel(plus,"+");
+  axisLabel(minus,"-");
   //             L E G E N D S
   var numstress = pcond.length
   var pbars=plegend.selectAll("g")
@@ -265,35 +321,6 @@ function initCoverage(p,m) {
   pbars.on("click",function(d){
     var toselect="#"+d[0].join("_")+"p"
     var selected=plus.select(toselect);
-    var ishidden=selected.classed("hidden");
-    selected.classed("hidden",!ishidden);
-  });
-  feat_data=[];
-  for (n in feat_types) {feat_data.push([n,colors[feat_types[n]]])}
-  
-  var abars=alegend.selectAll("g")
-	 .data(feat_data)
-	 .enter()
-	 .append("g")
-	 .attr("class","legendbar")
-	 .attr("transform",function(d,i) {return "translate("+(margin.left + i*width/feat_data.length) +","+"0)"})
-  abars.append("rect")
-	 .attr({
-	   width: function(d) {return width/feat_data.length - 2},
-	   height: function(d) {return legendheight},
-	   fill: function(d) {return d[1]}
-	 });
-  abars.append("text")
-      .attr({
-	x: function(d) {return (width/feat_data.length)/2 - 7*Math.round(d[0].length/2)},
-	y: function(d,i) {return legendheight/2},
-	dy: function(d) {return ".25em"}
-      })
-      .text(function(d) {return d[0]});
-  abars.on("click",function(d){
-    var toselect="."+d[0]
-    console.log(toselect);
-    var selected=annotation.selectAll(toselect);
     var ishidden=selected.classed("hidden");
     selected.classed("hidden",!ishidden);
   });
@@ -431,7 +458,7 @@ function renderCoverage(p,m,pcol,mcol,pcondition,mcondition) {
 }
 
 
-function axisLabel(graph) {
+function axisLabel(graph,s) {
   graph.append("text")
       .attr({
 	class: "y label",
@@ -442,7 +469,7 @@ function axisLabel(graph) {
       })
       .attr("text-anchor","end")
       .style("font-size","15px")
-      .text("Coverage");
+      .text("Coverage (" + s + ")");
 }
 /*
 function drawAnnotation(annots) {
@@ -473,6 +500,10 @@ function draw() {
 
   plus.selectAll(".area").attr("d",parea);
   minus.selectAll(".area").attr("d",marea);
+  drawOnlyAnnotation()
+}
+
+function drawOnlyAnnotation() {
   drawAnnotation(annotation.selectAll(".annotation"));
   labelAnnotation(paths.selectAll(".labs.ORF"));
 }
@@ -501,7 +532,8 @@ function annotSort(input) {
 
 function mark() {
   paths.selectAll(".Transcript, .Promoter, .ORF, .RBS")
-       .attr('marker-end',function(d) {return 'url(#marker_'+d.feature+')'})
+       .attr('marker-end',function(d) {return 'url(#markerArrow_'+d.feature+')'})
+       .attr('marker-start',function(d) {return 'url(#markerSquare_'+d.feature+')'})
 }
 
 function coverageMouseoverSetup() {

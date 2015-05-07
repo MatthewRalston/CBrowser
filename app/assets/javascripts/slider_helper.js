@@ -3,17 +3,17 @@ $(document).ready(function(){
   // Initialize slider
   $('#genomeSlider').noUiSlider({
     start: [values[0]],
-    behaviour: 'drag-fixed',
+    behaviour: 'tap-drag',
     range: {'min': 0,
 	    'max': 192000
     },
     step: 1
   },true);
   var gslider = $( '#genomeSlider' );
-  //gslider.Link('lower').to($( '#start' ));
+  gslider.Link('lower').to($( '#start' ));
   $('#lengthSlider').noUiSlider({
     start: [values[1]-values[0]],
-    behaviour: 'drag-fixed',
+    behaviour: 'tap-drag',
     range: {'min': 100,
 	    'max': 50000
     },
@@ -32,6 +32,19 @@ $(document).ready(function(){
 
 
 
+  $('#genomeSlider').Link('lower').to('-inline-<div class="slideTooltip"></div>',function(value){
+    $(this).html(
+      '<strong>Start : </strong>'+
+	'<span>' + Math.floor(value) + '</span>'
+      );
+  });
+
+  $('#lengthSlider').Link('lower').to('-inline-<div class="slideTooltip"></div>',function(value){
+    $(this).html(
+      '<strong>Length : </strong>'+
+	'<span>' + Math.floor(value) + '</span>'
+      );
+  });
 
 
   // Adjusts range to chromosome
@@ -44,9 +57,19 @@ $(document).ready(function(){
 	 max: "3940880",
 	 step: "1"
 	});
+      d3.select("#end").attr(
+	{min: "0",
+	 max: "3940880",
+	 step: "1"
+	});
       $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 3940880}},true);
     } else {
       d3.select("#start").attr(
+	{min: "0",
+	 max: "192000",
+	 step: "1"
+	});
+      d3.select("#end").attr(
 	{min: "0",
 	 max: "192000",
 	 step: "1"
