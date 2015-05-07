@@ -6,9 +6,11 @@ class ClostridiaController < ApplicationController
     @limit = 50000
     @buffer = 2000
     @errors=[]
+    puts("HELLO WORLD")
     # If parameters, do things else do nothing
-    if params.keys.include?(:annotation_id) && params[:annotation_id] != ''     
+    if params.keys.include?("annotation_id") && params[:annotation_id] != ''     
       result = Genomeannotation.where(name: params[:annotation_id]).as_json[0]
+
       if result.nil?
         @errors << "No matching record found: #{params[:annotation_id]}"
         render 'browse'
