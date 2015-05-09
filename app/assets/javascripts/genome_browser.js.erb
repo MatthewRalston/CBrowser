@@ -214,11 +214,7 @@ function annotationTrack(coords,data) {
 	 bonusheight=0;
 	 if (d.extra && d.extra.length > 0) {
 	   extras=d.extra.split(" ")
-	   test=extras;
-	   console.log(extras)
 	   for (i=0; i<extras.length; i+=2) {
-	     console.log(extras[i]);
-	     console.log(extras[i+1]);
 	     text+="<br><span>"+extras[i]+": "+extras[i+1]+"</span>";
 	     bonusheight+=32;
 	   }

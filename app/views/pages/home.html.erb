@@ -1,0 +1,161 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Genome Browser Instructions</title>
+    <meta name="description" content="This page displays instructions for use of the genome browser."/>
+    <meta name="author" content="Matthew Ralston"/>
+    <meta name="copyright" content="Matthew Ralston, (c) 2015"/>
+    <script>
+     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+     ga('create', 'UA-62768433-1', 'auto');
+     ga('send', 'pageview');
+    </script>
+    <%= stylesheet_link_tag "browser.css" %>
+    <%= stylesheet_link_tag "jquery-ui.css" %>
+  </head>
+  <body>
+    <!-- M E N U -->
+    <nav class="top-bar" data-topbar>
+      <ul class="title-area">
+	<li class="name">
+	  <h1>
+	    <a href="https://clostridia.dbi.udel.edu/CBrowser">Genome Browser Instructions</a>
+	  </h1>
+	</li>
+	<li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
+      </ul>
+      <section class="top-bar-section">
+	<ul class="right">
+	  <li class="divider"></li>
+	  <li class="name">
+	    <h2>
+	      <a href="https://clostridia.dbi.udel.edu/CBrowser/browse">Browser</a>
+	    </h2>
+	  </li>
+	  <li class="divider"></li>
+	  <li class="name">
+	    <h2>
+	      <a href="https://clostridia.dbi.udel.edu">Home</a>
+	    </h2>
+	  </li>
+	  <li class="divider"></li>
+	  <li class="has-dropdown">
+	    <a href="#">Menu</a>
+	    <ul class="dropdown">
+	  <li><a href="https://clostridia.dbi.udel.edu/circular">Circular Plot</a></li>
+	  <li class="divider"></li>
+	      <li><label>Scatter Plots</label></li>
+	      <li class="has-dropdown">
+		<a href="#" class="">Differential Expression</a>
+		<ul class="dropdown">
+		  <li><a href="https://clostridia.dbi.udel.edu/maplot">M.A. Plot</a></li>
+		</ul>
+	      </li>
+	      <li><a href="https://clostridia.dbi.udel.edu/correlation">Correlation</a></li>
+	      <li class="divider"></li>
+	      <li><label>Unsupervised Analysis</label></li>
+	      <li><a href="https://clostridia.dbi.udel.edu/pca">P.C.A.</a></li>
+	      <li class="divider"></li>
+	      <li><a href="#">See all &rarr;</a></li>
+	    </ul>
+	  </li>
+	  <li class="divider"></li>
+	  
+	</ul>
+      </section>
+    </nav>
+    <div class="row">
+      <div class="large-6 small-6 columns" id="video-frame">
+	<iframe width="420" height="315" src="https://www.youtube.com/embed/wZOKwXC6vvU" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div id="description-frame">
+      <div id="description-text">
+	<div class="row" id="intro">
+	  <h3>Introduction</h3>
+	  <p>
+	  </p>
+	</div>
+	<div class="row" id="form-description">
+	  <h3>Submitting a Query</h3>
+	  <p>Users should submit a form with the “Load Annotation” button on the bottom right of the form. Users may query a gene annotation (e.g. CA_P0162) in the “Find Gene or Annotation” field. Alternatively, users can query specific windows, “slices” of the genome, defined by start and end coordinates. Users can view up to a 50kb window in the genome, starting at the “Start” coordinate selected in the form. However, viewing should be restricted to 4-10kb windows for optimal loading times and performance in your browser. Convenient sliders are provided for the 5’ “Start” coordinate and the “Length” of the window.</p>
+	  <p>Next, users have the option of loading associated strand-specific sequencing coverage/depth data for the region, by selecting the “Coverage Data” check box. This reveals a form to select various “tracks” of data to display. Each track summarizes sequencing data from a particular stress, time, or stress-time combination in my RNA-seq experiment. Up to four tracks may be displayed at once. The options for this form are described below.</p>
+	  <ul>
+	    <li>
+	      <h5>Stress:</h5>
+	      <p>One of unstressed (NS), 60mM butanol (BuOH), or 40mM butyrate (BA) treatment conditions. Can be left blank.</p>
+	    </li>
+	    <li>
+	      <h5>Time:</h5>
+	      <p>One of 15, 75, 150, or 270 minutes after mid-exponential growth (A<sub>600</sub>=1). 150 minutes is roughly a late-exponential / early transition phase time point. 270 minutes is a mid-transition phase time point. Can be left blank.</p>
+	    </li>
+	    <li>
+	      <h5>TEX</h5>
+	      <p>Either None or Only. This option displays data excluding TEX treated replicates (None) or from only (Only) TEX treated replicates that match the stress, time, or stress-time combination above. This option is active for the 75 or 270 minutes time points only. 
+	      </p>
+	      <h5>
+		<small>
+		  <dl>
+		    <dt>5'-phosphate specific exonuclease (TEX)</dt>
+		    <dd>TEX is a 5’-phosphate specific exonuclease that is specific for cleaved or processed transcripts. TEX treatment is used on RNA samples before sequencing to identify 5’ reads from primary transcripts (near TSSes), transcript degradation, or sites of transcript cleavage/processing.</dd>
+		  </dl>
+		</small>
+	      </h5>
+	    </li>
+	  </ul>
+	  <p>After selecting up to 4 tracks to display, a “Reducer” or summarization function is used to collate data from replicates matching the specified stress, time, or stress-time combination. Current options are the average, minimum, maximum, or sum of the depth/coverage at a point in the genome.</p>
+	</div>
+	<div class="row" id="browserui-description">
+	  <h3>User Interface</h3>
+	  <p>Once the data is loaded, 3 plots will be made, each with a legend. The plot on the top represents single-base resolution sequencing depth/coverage on the positive strand of the genome. Similarly, a second plot can be seen upside-down at the bottom, representing sequencing depth on the minus strand of the genome. Sequencing depth displayed in these graphs is roughly proportional to the RNA expression or activity of the region. In the middle, an annotation track displays various genomic features, which are soon described.</p>
+	  <h4>Sequencing Depth / Coverage Plots</h4>
+	  <p>At the top or bottom of these plots are legends, with boxes colored according to the “tracks” of selected data from the query. In the sequencing coverage plot, each condition is colored accordingly. Clicking on the boxes of the legends allows the display of the coverage tracks to be toggled (hiding and revealing). Hovering over the coverage tracks places a dot and tooltip at the X and Y position of the track, allowing precise inspection of the sequencing depth at a position in the genome.</p>
+	  <p>Zooming in and out of the region is accomplished by scrolling the mouse wheel up and down. Holding the mouse and dragging allows panning or scrolling horizontally through the region. The Y-axis scale may be readjusted by inputting a value into the “Plus” or “Minus” boxes and clicking “Scale.”</p>
+	  <h4>Annotation Track</h4>
+	  <p>The annotation track displays various types of annotations according to strand (top and bottom inside the annotation track, also reinforced by arrows indicating the 5’ to 3’ direction). These annotations scale along with zooming of the coverage vectors. The legend in the center indicates how genomic annotations are colored. Hovering over an annotation displays its name, coordinates, and associated metadata.</p>
+	  <ul>
+	    <li>
+	      <h5>Transcript:</h5>
+	      <p>Transcript boundaries were determined through curation of a transcriptome assembly.</p>
+	    </li>
+	    <li>
+	      <h5>Open Reading Frame (ORF):</h5>
+	      <p>Reference ORFs from NCBI</p>
+	    </li>
+	    <li>
+	      <h5>Hairpin:</h5>
+	      <p>Perhaps more accurately described as an inverted repeat. Rho-independent terminators frequently contain long inverted repeats. These repeats can also suggest sites for dimeric regulators to bind.</p>	    
+	    </li>
+	    <li>
+	      <h5>Factor:</h5>
+	      <p>Short for transcription factor, which in this case incidates any transcriptional regulator (operator, repressor, etc.) that is not a promoter motif. These motifs were identified using <em>B. subtilis</em> consensus motifs from DBTBS and the Mast algorithm.</p>
+	    </li>
+	    <li>
+	      <h5>Promoter:</h5>
+	      <p>A promoter motif for the housekeeping Sigma factor A. -10 and -35 motifs were identified as above and combined into full promoter motifs using customized software.</p>
+	    </li>
+	    <li>
+	      <h5>Ribosome Binding Site (RBS):</h5>
+	      <p>Ribosome binding sites described in the literature for select locations.</p>
+	    </li>
+	    <li>
+	      <h5>Transcription Start Site (TSS):</h5>
+	      <p>Transcription start sites determined by primer extensions in the literature for select locations.</p>
+	    </li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <%= stylesheet_link_tag "home.css" %>
+  </body>
+  <footer class="row">
+    <div><p>&copy2014 Matthew T. Ralston</p></div>
+  </footer>
+</html>

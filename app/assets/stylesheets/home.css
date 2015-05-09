@@ -1,0 +1,20 @@
+#description-text,
+#video-frame {
+  border: 1px solid #000000;
+  margin: 10px;
+}
+
+#form-description,
+#browserui-description {
+  margin: 10px;
+  padding: 10px;
+}
+
+#video-frame {
+  
+}
+
+iframe {
+  display: block;
+  margin: 10px;
+}

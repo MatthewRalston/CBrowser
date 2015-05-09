@@ -18,7 +18,7 @@ namespace :db do
   task :restore => :environment do
     cmd = nil
     with_config do |app, host, db, user|
-      cmd = "mysql -u #{user} -p#{pass} #{db} < #{Rails.root}/db/CBrowser.dump"
+      cmd = "mysql -u #{user} -p #{db} < #{Rails.root}/db/CBrowser.dump"
       #cmd = "pg_restore --verbose --host #{host} --username #{user} --clean --no-owner --no-acl --dbname #{db} #{Rails.root}/db/#{app}.dump"
     end
     Rake::Task["db:drop"].invoke

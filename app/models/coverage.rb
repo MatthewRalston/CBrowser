@@ -1,5 +1,5 @@
 class Coverage < ActiveRecord::Base
-  acts_as_copy_target
+  #acts_as_copy_target
   validates :chr, presence: true, inclusion: {in: %w(Chrom pSol1)}
   validates :base, presence: true, numericality: {only_integer: true}
   validates :stress, presence: true, inclusion: {in: %w(NS BuOH BA)}

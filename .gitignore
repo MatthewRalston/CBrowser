@@ -22,5 +22,7 @@
 config/database.yml
 config/secrets.yml
 db/gbrowse_dev.sql.gz
+db/CBrowser.dump.gz
+data
 # ignore rvm configurations
 .rvmrc

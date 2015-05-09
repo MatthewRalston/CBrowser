@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
 
-  get 'genomeannotations/upload'
-  match 'genomeannotations/upload', to: 'genomeannotations#upload', via: :post
+#  get 'genomeannotations/upload'
+#  match 'genomeannotations/upload', to: 'genomeannotations#upload', via: :post
 
   # Clostridia should be the main page.
-  get 'clostridia/browse'
+  #get 'clostridia/browse'
+  match 'browse', to: 'clostridia#browse', via: [:get, :post]
   resources :clostridia
 
   # The priority is based upon order of creation: first created -> highest priority.

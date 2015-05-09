@@ -1,4 +1,6 @@
 class ClostridiaController < ApplicationController
+
+  http_basic_authenticate_with name: "papoutsakis", password: "clostridia"
   def browse
     params[:start]=params[:start].to_i
     params[:end]=params[:end].to_i
@@ -6,7 +8,6 @@ class ClostridiaController < ApplicationController
     @limit = 50000
     @buffer = 2000
     @errors=[]
-    puts("HELLO WORLD")
     # If parameters, do things else do nothing
     if params.keys.include?("annotation_id") && params[:annotation_id] != ''     
       result = Genomeannotation.where(name: params[:annotation_id]).as_json[0]
@@ -86,6 +87,12 @@ private
       {"base"=>b,"cov"=>c.max} }
   end
 
+  def cov_Min(results)
+    results.map {|b,o| 
+      c=o.map{|x|x["cov"].to_i}
+      {"base"=>b,"cov"=>c.min} }
+  end
+
   def annotation_render
     [params.require(:chr),params.require(:start),params.require(:end)]
   end
@@ -126,7 +133,7 @@ private
   end
 
   def reducer?(reducer)
-    ["Sum","Max","Avg"].include?(reducer)
+    ["Sum","Max","Min","Avg"].include?(reducer)
   end
 
   def checkparams(params)

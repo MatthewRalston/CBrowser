@@ -1,18 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Clostridia Browser- by Matt Ralston</title>
+    <title>Genome Browser</title>
+    <meta name="description" content="This page allows users to display transcript expression differences identified by DESeq2."/>
+    <meta name="author" content="Matthew Ralston"/>
+    <meta name="copyright" content="Matthew Ralston, (c) 2015"/>
+    <script>
+     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+     ga('create', 'UA-62768433-1', 'auto');
+     ga('send', 'pageview');
+    </script>
     <%= stylesheet_link_tag "browser.css" %>
     <%= stylesheet_link_tag "jquery-ui.css" %>
   </head>
   <body>
+    <!-- M E N U -->
     <nav class="top-bar" data-topbar>
       <ul class="title-area">
 	<li class="name">
 	  <h1>
-	    <a href="https://matthewralston.github.io">Matthew Ralston</a>
+	    <a href="https://clostridia.dbi.udel.edu/CBrowser/browse">Genome Browser</a>
 	  </h1>
 	</li>
 	<li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
@@ -20,7 +34,38 @@
       <section class="top-bar-section">
 	<ul class="right">
 	  <li class="divider"></li>
-	  <li><a href="http://matthewralston.github.io">Home</a></li>
+	  <li class="name">
+	    <h2>
+	      <a href="https://clostridia.dbi.udel.edu/CBrowser">Instructions</a>
+	    </h2>
+	  </li>
+	  <li class="divider"></li>
+	  <li class="name">
+	    <h2>
+	      <a href="https://clostridia.dbi.udel.edu">Home</a>
+	    </h2>
+	  </li>
+	  <li class="divider"></li>
+	  <li class="has-dropdown">
+	    <a href="#">Menu</a>
+	    <ul class="dropdown">
+	  <li><a href="https://clostridia.dbi.udel.edu/circular">Circular Plot</a></li>
+	  <li class="divider"></li>
+	      <li><label>Scatter Plots</label></li>
+	      <li class="has-dropdown">
+		<a href="#" class="">Differential Expression</a>
+		<ul class="dropdown">
+		  <li><a href="https://clostridia.dbi.udel.edu/maplot">M.A. Plot</a></li>
+		</ul>
+	      </li>
+	      <li><a href="https://clostridia.dbi.udel.edu/correlation">Correlation</a></li>
+	      <li class="divider"></li>
+	      <li><label>Unsupervised Analysis</label></li>
+	      <li><a href="https://clostridia.dbi.udel.edu/pca">P.C.A.</a></li>
+	      <li class="divider"></li>
+	      <li><a href="#">See all &rarr;</a></li>
+	    </ul>
+	  </li>
 	  <li class="divider"></li>
 	  
 	</ul>
@@ -29,6 +74,9 @@
 
 <!-- D A T A    F O R M  & Touch screen slider -->
     <div id="dataSub-container">
+      <div class="row">
+	<h4>Query Form</h4>
+      </div>
       <div id="slider-container">
 	<div id="genomeSlider" class="row noUi-ltr noUi-horizontal noUi-background slider">
 	  <div id="first-base" class="noUi-base">
@@ -172,17 +220,20 @@
 	      <%= select_tag 'tex4', options_for_select(['None','Only']), include_blank: true, disabled: true %>
 	    </div>
 	  </div>
-	<!-- Reducer -->
+	  <div class="row cond hidden">
+	    <div class="large-2 small-2 columns">
+	      <%= label_tag 'reducer_tag', "Reducer", :class => "condLabel right inline" %>
+	    </div>
+	    <div class="large-1 small-1 columns end">
+	      <%= select_tag 'reducer', options_for_select(["Avg","Max","Min","Sum"],"Sum") %>
+	    </div>
+
+	      <!-- Reducer -->
+	  </div>
 	  <div class="row">
 	    <!-- -	    <div class="large-4 small-4 columns cond hidden"> -->
-	      <div class="large-1 small-1 columns">
-		<%= label_tag 'reducer_tag', "Reducer", :class => "condLabel right inline" %>
-	      </div>
-	      <div class="large-1 small-1 columns">
-		<%= select_tag 'reducer', options_for_select(["Avg","Max","Sum"],"Sum") %>
-	      </div>
-	      <div class="large-2 small-2 columns">
-		<%= label_tag 'annotation_tag', "Annotation", :class => "condLabel right inline" %>
+	    <div class="large-3 small-3 columns">
+		<%= label_tag 'annotation_tag', "Find Gene or Annotation", :class => "condLabel right inline" %>
 	      </div>
 	      <div class="large-3 small-3 columns">
 		<%= text_field_tag 'annotation_id' %>
@@ -195,24 +246,28 @@
       </div>
      <% end %>
     </div>
-    <div id="domain-limiter" class="row">
-      <div class="large-2 small-2 columns">
-	<label class="right inline" for="rePlus" id="rePlusLab">Plus</label>
+    <% if @data && @data.size > 0 %>
+      <div id="domain-limiter" class="row">
+	<div class="large-2 small-2 columns">
+	  <h4>Scale Y-Axis</h4>
+	</div>
+	<div class="large-2 small-2 columns">
+	  <label class="right inline" for="rePlus" id="rePlusLab">Plus</label>
+	</div>
+	<div class="large-2 small-2 columns">
+	  <input id="rePlus" type="number">
+	</div>
+	<div class="large-2 small-2 columns">
+	  <label id="reMinusLab" class="right inline" for="reMinus">Minus</label>
+	</div>
+	<div class="large-2 small-2 columns">
+	  <input id="reMinus" type="number">
+	</div>
+	<div class="large-2 small-2 columns end">
+	  <a href="#" class="button" onclick="reScale();">Scale</a>
+	</div>
       </div>
-      <div class="large-2 small-2 columns">
-	<input id="rePlus" type="number">
-      </div>
-      <div class="large-2 small-2 columns">
-	<label id="reMinusLab" class="right inline" for="reMinus">Minus</label>
-      </div>
-      <div class="large-2 small-2 columns">
-	<input id="reMinus" type="number">
-      </div>
-      <div class="large-2 small-2 columns">
-	<a href="#" class="button" onclick="reScale();">Limit Domain</a>
-      </div>
-    </div>
-
+    <% end %>
     <br><br>
     <!--    D A T A    S E L E C T I O N -->
     <% unless @annotations.nil? %>
@@ -239,7 +294,7 @@
 	 
 
 	 mbrewer=["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"];
-	 pbrewer=["#ffffcc","#a1dab4","#41b6c4","#225ea8"];
+	 pbrewer=["#ffffb2","#a1dab4","#41b6c4","#225ea8"];
 
 	 xScale = d3.scale.linear()
 			  .domain([start,end])
@@ -253,7 +308,6 @@
 	 <% else @data && @data.size > 0 %>
 	 zoom = d3.behavior.zoom()
 			   .on("zoom",draw);
-	 console.log("Total")
 	   setupTracks()
 	   renderAnnotations(gtfData, start,end);	 
 	   covData = <%= raw @data.to_json %>;

@@ -10,6 +10,11 @@
   margin-top: 40px;
 }
 
+#domain-limiter {
+  margin: 5px;
+  border: 1px solid #404040;
+}
+
 #slider-container {
   margin: 10px;
 }

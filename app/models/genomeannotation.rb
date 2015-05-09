@@ -1,5 +1,5 @@
 class Genomeannotation < ActiveRecord::Base
-  acts_as_copy_target
+  #acts_as_copy_target
 
   validates :name, presence: true, length: {minimum: 3}
   validates :chr, presence: true, inclusion: {in: %w(Chrom pSol1)}
