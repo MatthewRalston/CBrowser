@@ -241,6 +241,14 @@ function annotationTrack(coords,data) {
        .append("text")
        .attr("class", function(d){return "labs "+d.feature})
        .attr("font-size","14px");
+
+  annotation.append("rect")
+	    .attr("id","annpane")
+	    .attr("class","pane")
+	    .attr("width",width)
+	    .attr("height",annheight)
+	    .attr("transform","translate("+margin.left+",0)")
+	    .call(zoom);
 }
 
 
@@ -371,11 +379,13 @@ function initCoverage(p,m) {
       .attr("transform","translate("+margin.left+","+margin.bottom+")")
       .call(zoom);
   minus.append("rect")
+       .attr("id","minuspane")
        .attr("class","pane")
        .attr("width",width)
        .attr("height",covheight)
        .attr("transform","translate("+margin.left+","+(margin.bottom+margin.minus)+")")
        .call(zoom);
+
 // A R E A   F U N C T I O N S
   parea=d3.svg.area()
 	      .x(function(d) {return margin.left + xScale(d.base)})

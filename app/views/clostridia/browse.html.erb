@@ -272,20 +272,41 @@
     <!--    D A T A    S E L E C T I O N -->
     <% unless @annotations.nil? %>
       <script>
-       var params = <%= raw params.to_json %>;
+       params = <%= raw params.to_json %>;
        // Global variables
        start= +params["start"],
        end= +params["end"],
        chr= params["chr"],
        gtfData = <%= raw @annotations.to_json %>;
+
        // Run time
        $(window).bind("load", function() {
-
+	 // Resetting coordinates to parameters
 	 if (chr == "Chrom") {
 	   $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 3940880}},true);
+	   d3.select("#start").attr(
+	     {min: "0",
+	      max: "3940880",
+	      step: "1"
+	     });
+	   d3.select("#end").attr(
+	     {min: "0",
+	      max: "3940880",
+	      step: "1"
+	     });
 	 }
 	 else {
 	   $('#genomeSlider').noUiSlider({range: {'min': 0,'max': 192000}},true);
+	   d3.select("#start").attr(
+	     {min: "0",
+	      max: "192000",
+	      step: "1"
+	     });
+	   d3.select("#end").attr(
+	     {min: "0",
+	      max: "192000",
+	      step: "1"
+	     });
 	 }
 
 	 $('#chrSelect').val(chr);
@@ -304,6 +325,7 @@
 			   .on("zoom",drawOnlyAnnotation);
 	   onlyAnnotation();
 	   renderAnnotations(gtfData,start,end);
+	   zoom.x(xScale);
 	   drawOnlyAnnotation();
 	 <% else @data && @data.size > 0 %>
 	 zoom = d3.behavior.zoom()
