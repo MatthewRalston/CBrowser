@@ -4,9 +4,10 @@
   margin: 10px;
 }
 
+#intro,
 #form-description,
 #browserui-description {
-  margin: 10px;
+  margin: 10px !important;
   padding: 10px;
 }
 

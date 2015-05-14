@@ -1,3 +1,6 @@
+//= require foundation
+$(document).foundation();
+
 margin = {top: 25, right: 30, bottom: 10, left: 90, minus: 20},
 labelAdjust = 4
 width= 1000 - margin.left - margin.right,
@@ -16,6 +19,7 @@ pareas=[];
 mareas=[];
 parea=undefined;
 marea=undefined;
+linkprefix="http://www.kegg.jp/dbget-bin/www_bget?cac:"
 var xScale;
 var pScale;
 var mScale;
@@ -233,6 +237,11 @@ function annotationTrack(coords,data) {
 	    .duration(500)
 	    .style("opacity",0)
 	    .style("height","70px");
+
+       }).on("contextmenu",function(d) {
+	 if (d.feature == "ORF") {
+	   window.location.href = linkprefix + d.name;
+	 };
        });
   mark();
   paths.selectAll("text")
@@ -242,13 +251,14 @@ function annotationTrack(coords,data) {
        .attr("class", function(d){return "labs "+d.feature})
        .attr("font-size","14px");
 
-  annotation.append("rect")
+/*  annotation.append("rect")
 	    .attr("id","annpane")
 	    .attr("class","pane")
 	    .attr("width",width)
 	    .attr("height",annheight)
 	    .attr("transform","translate("+margin.left+",0)")
 	    .call(zoom);
+*/
 }
 
 

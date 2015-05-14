@@ -14,7 +14,6 @@ class ClostridiaController < ApplicationController
 
       if result.nil?
         @errors << "No matching record found: #{params[:annotation_id]}"
-        render 'browse'
       else        
         params[:chr]=result["chr"]
         maximum = (result["chr"] == "pSol1" ? 192000 : 3940880)
